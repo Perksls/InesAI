@@ -79,8 +79,9 @@ cd inesbot
 # 2. Install
 bash install.sh
 
-# 3. Add your API key to config.json
-nano config.json   # set "ativo": true and add your key
+# 3. Configure providers
+cp config.example.json config.json
+nano config.json   # add your API key and set "ativo": true for your provider
 
 # 4. Start
 ./start.sh
