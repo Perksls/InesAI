@@ -1,4 +1,4 @@
-"""InesBot WebSocket Backend - Multi-Provider with Dynamic Fallback"""
+"""InesAI WebSocket Backend - Multi-Provider with Dynamic Fallback"""
 import asyncio
 import json
 import sqlite3
@@ -59,7 +59,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger("inesbot")
+logger = logging.getLogger("inesai")
 
 # Database lock
 DB_LOCK = asyncio.Lock()
@@ -195,7 +195,7 @@ async def openai_compatible_stream(
         "Authorization": "Bearer " + api_key,
         "Content-Type": "application/json",
         "HTTP-Referer": config.config.get("settings", {}).get("app_url", "http://localhost"),
-        "X-Title": config.config.get("settings", {}).get("app_name", "InesBot"),
+        "X-Title": config.config.get("settings", {}).get("app_name", "InesAI"),
         "Accept": "text/event-stream"
     }
 
@@ -355,7 +355,7 @@ async def openai_compatible_call(
         "Authorization": "Bearer " + api_key,
         "Content-Type": "application/json",
         "HTTP-Referer": config.config.get("settings", {}).get("app_url", "http://localhost"),
-        "X-Title": config.config.get("settings", {}).get("app_name", "InesBot"),
+        "X-Title": config.config.get("settings", {}).get("app_name", "InesAI"),
     }
     payload = {
         "model": model_id,
@@ -421,7 +421,7 @@ async def lifespan(app: FastAPI):
     yield
     await web_search.close()
 
-app = FastAPI(title="InesBot Multi-Provider API", lifespan=lifespan)
+app = FastAPI(title="InesAI Multi-Provider API", lifespan=lifespan)
 
 # Serve frontend static files
 if FRONTEND_DIR.exists():
@@ -639,7 +639,7 @@ async def root(request: Request):
     if index_file.exists():
         with open(index_file, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
-    return {"status": "InesBot Multi-Provider", "version": "3.0"}
+    return {"status": "InesAI Multi-Provider", "version": "3.0"}
 
 @app.get("/health")
 async def health_check(request: Request):
@@ -764,6 +764,7 @@ async def websocket_endpoint(websocket: WebSocket):
             use_fallback = data.get("use_fallback", True)
             document = data.get("document", "")
             summarize_context = data.get("summarize_context", False)
+            lang = data.get("lang", "pt") if data.get("lang") in ("pt", "en") else "pt"
             images = data.get("images", []) or []
             # Validar: só data URLs de imagens, max 4
             images = [
@@ -797,14 +798,14 @@ async def websocket_endpoint(websocket: WebSocket):
 
             await manager.send_message(websocket, json.dumps({
                 "type": "info",
-                "content": "A usar: " + model_name + (" (auto-selecionado)" if auto_selected else ""),
+                "content": ("Using: " if lang == "en" else "A usar: ") + model_name + ((" (auto-selected)" if lang == "en" else " (auto-selecionado)") if auto_selected else ""),
                 "model": model_id, "model_name": model_name,
                 "provider": provider, "session_id": session_id, "auto_selected": auto_selected
             }))
 
             await manager.send_message(websocket, json.dumps({
                 "type": "thinking",
-                "content": "A processar com " + model_name + "...",
+                "content": ("Processing with " if lang == "en" else "A processar com ") + model_name + "...",
                 "model": model_id, "model_name": model_name, "session_id": session_id
             }))
 
@@ -813,14 +814,14 @@ async def websocket_endpoint(websocket: WebSocket):
             if use_web_search:
                 search_results = await web_search.search(message)
                 if search_results:
-                    messages.append({"role": "system", "content": "Resultados da pesquisa web:\n\n" + search_results})
+                    messages.append({"role": "system", "content": ("Web search results:\n\n" if lang == "en" else "Resultados da pesquisa web:\n\n") + search_results})
 
             if document:
-                messages.append({"role": "system", "content": "Documento carregado:\n\n" + document[:8000]})
+                messages.append({"role": "system", "content": ("Uploaded document:\n\n" if lang == "en" else "Documento carregado:\n\n") + document[:8000]})
 
             messages.append({
                 "role": "system",
-                "content": "Es o InesBot, um assistente AI amigavel e util. Responde em portugues de Portugal."
+                "content": "You are InesAI, a friendly and helpful AI assistant."
             })
 
             # Definir aqui para usar tanto no contexto como no tool loop abaixo
@@ -833,6 +834,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 stream_fn=chat_with_fallback_stream,
                 model_id=model_id,
                 use_fallback=use_fallback,
+                lang=lang,
             )
 
             # Modelos com ferramentas integradas (ex: groq/compound) têm limite
@@ -845,7 +847,7 @@ async def websocket_endpoint(websocket: WebSocket):
             if summary_used:
                 await manager.send_message(websocket, json.dumps({
                     "type": "info",
-                    "content": "📝 Contexto resumido automaticamente",
+                    "content": "📝 " + ("Context summarized automatically" if lang == "en" else "Contexto resumido automaticamente"),
                     "model": model_id, "model_name": model_name,
                     "session_id": session_id
                 }))
@@ -909,7 +911,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     tool_names = [tc["name"] for tc in tool_calls]
                     await manager.send_message(websocket, json.dumps({
                         "type": "info",
-                        "content": "🔧 A usar: " + ", ".join(tool_names),
+                        "content": "🔧 " + ("Using: " if lang == "en" else "A usar: ") + ", ".join(tool_names),
                         "model": current_model, "model_name": current_model_name,
                         "session_id": session_id
                     }))
@@ -957,7 +959,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         current_model_name = chunk_data.get("model_name", model_name)
                         await manager.send_message(websocket, json.dumps({
                             "type": "info",
-                            "content": chunk_data.get("info", "A tentar modelo alternativo..."),
+                            "content": chunk_data.get("info", "Trying alternative model..." if lang == "en" else "A tentar modelo alternativo..."),
                             "model": current_model, "model_name": current_model_name, "session_id": session_id
                         }))
                         continue

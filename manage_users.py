@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-InesBot - Gestão de Utilizadores
+InesAI - Gestão de Utilizadores
 Uso: python manage_users.py [comando] [args]
 
 Comandos:
@@ -90,7 +90,7 @@ def cmd_passwd(args):
 
 
 def cmd_setup(_args):
-    print("\n=== InesBot — Criar primeiro utilizador ===\n")
+    print("\n=== InesAI — Criar primeiro utilizador ===\n")
     users = list_users()
     if users:
         print("Já existem utilizadores:")

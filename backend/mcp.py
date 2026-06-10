@@ -1,5 +1,5 @@
 """
-InesBot MCP Layer — Context Management & Tool Abstraction
+InesAI MCP Layer — Context Management & Tool Abstraction
 
 Responsabilidades:
   1. Context Management
@@ -7,7 +7,7 @@ Responsabilidades:
        - Modo resumo: resumo das mensagens antigas + últimas N recentes
 
   2. Tool Management
-       - Ferramentas do InesBot (search, datetime, calculate)
+       - Ferramentas do InesAI (search, datetime, calculate)
        - Executar tool calls e devolver resultados
        - Suporte a MCP servers externos (HTTP) — Moonshot e outros
 
@@ -26,7 +26,7 @@ import asyncio
 from typing import List, Dict, Any, Optional, Callable
 from datetime import datetime
 
-logger = logging.getLogger("inesbot.mcp")
+logger = logging.getLogger("inesai.mcp")
 
 # ── Constantes ────────────────────────────────────────────────────────────────
 SUMMARY_THRESHOLD = 10   # mensagens a partir do qual o resumo é activado
@@ -44,6 +44,7 @@ async def build_context(
     stream_fn: Callable,
     model_id: str,
     use_fallback: bool = False,
+    lang: str = "pt",
 ) -> tuple[List[Dict[str, str]], bool]:
     """
     Constrói as mensagens a enviar ao modelo.
@@ -54,7 +55,7 @@ async def build_context(
     if not summarize or len(turns) <= SUMMARY_THRESHOLD:
         return _raw_context(turns), False
 
-    return await _summarized_context(turns, stream_fn, model_id, use_fallback)
+    return await _summarized_context(turns, stream_fn, model_id, use_fallback, lang)
 
 
 def _raw_context(turns: List[Dict[str, Any]]) -> List[Dict[str, str]]:
@@ -65,19 +66,20 @@ def _raw_context(turns: List[Dict[str, Any]]) -> List[Dict[str, str]]:
 
 
 async def _summarized_context(
-    turns, stream_fn, model_id, use_fallback
+    turns, stream_fn, model_id, use_fallback, lang="pt"
 ) -> tuple[List[Dict[str, str]], bool]:
     old_turns    = turns[:-RECENT_KEEP]
     recent_turns = turns[-RECENT_KEEP:]
 
-    summary_text = await _generate_summary(old_turns, stream_fn, model_id, use_fallback)
+    summary_text = await _generate_summary(old_turns, stream_fn, model_id, use_fallback, lang)
 
     if not summary_text:
         logger.warning("Resumo falhou — a usar modo raw")
         return _raw_context(turns), False
 
+    summary_header = "Summary of previous conversation:" if lang == "en" else "Resumo da conversa anterior:"
     messages = [
-        {"role": "system", "content": f"Resumo da conversa anterior:\n{summary_text}"}
+        {"role": "system", "content": f"{summary_header}\n{summary_text}"}
     ]
     for m in recent_turns:
         messages.append({"role": m["role"], "content": m["content"]})
@@ -89,7 +91,7 @@ async def _summarized_context(
     return messages, True
 
 
-async def _generate_summary(turns, stream_fn, model_id, use_fallback) -> str:
+async def _generate_summary(turns, stream_fn, model_id, use_fallback, lang="pt") -> str:
     if not turns:
         return ""
 
@@ -98,15 +100,20 @@ async def _generate_summary(turns, stream_fn, model_id, use_fallback) -> str:
         for m in turns
     ])
 
+    prompts = {
+        "pt": (
+            "Resume a conversa seguinte em 3-5 frases concisas em português. "
+            "Preserva os pontos mais importantes, decisões e contexto relevante "
+            "para continuar a conversa. Sê directo e factual."
+        ),
+        "en": (
+            "Summarize the following conversation in 3-5 concise sentences in English. "
+            "Preserve the most important points, decisions, and context relevant "
+            "to continuing the conversation. Be direct and factual."
+        ),
+    }
     summary_prompt = [
-        {
-            "role": "system",
-            "content": (
-                "Resume a conversa seguinte em 3-5 frases concisas em português. "
-                "Preserva os pontos mais importantes, decisões e contexto relevante "
-                "para continuar a conversa. Sê directo e factual."
-            )
-        },
+        {"role": "system", "content": prompts.get(lang, prompts["pt"])},
         {"role": "user", "content": conversation_text}
     ]
 
@@ -129,7 +136,7 @@ async def _generate_summary(turns, stream_fn, model_id, use_fallback) -> str:
 # Providers que suportam function calling no formato OpenAI
 TOOL_PROVIDERS = {"moonshot", "google", "github", "openai", "groq", "anthropic"}
 
-# Ferramentas nativas do InesBot — disponíveis para qualquer provider com mcp:true
+# Ferramentas nativas do InesAI — disponíveis para qualquer provider com mcp:true
 INESBOT_TOOLS = [
     {
         "type": "function",

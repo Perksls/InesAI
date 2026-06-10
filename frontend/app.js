@@ -1,7 +1,7 @@
-// InesBot WebSocket Client
+// InesAI WebSocket Client
 console.log("=== APP.JS CARREGADO ===");
 
-class InesBotChat {
+class InesAIChat {
     constructor() {
         this.ws = null;
         this.currentSession = null;
@@ -13,7 +13,7 @@ class InesBotChat {
         this.currentAssistantDiv = null;
         this.currentModelName = "";
         this.fallbackInfoDiv = null; // NOVO: guardar div de fallback
-        console.log("InesBotChat criado");
+        console.log("InesAIChat criado");
         this.init();
     }
 
@@ -225,7 +225,7 @@ class InesBotChat {
             if (headerDiv) {
                 const currentText = headerDiv.querySelector(".model-tag");
                 const modelName = currentText ? currentText.textContent : "";
-                headerDiv.innerHTML = `🤖 InesBot <span class="model-tag">${modelName} (parado)</span>`;
+                headerDiv.innerHTML = `🤖 InesAI <span class="model-tag">${modelName} (parado)</span>`;
             }
             this.currentAssistantDiv = null;
         }
@@ -378,7 +378,7 @@ class InesBotChat {
             if (/\.(png|jpe?g|gif|webp|bmp|tiff?|ico|avif|heic|heif)$/.test(name) || file.type.startsWith("image/")) {
                 // Imagem: base64 para modelos com visão
                 if (file.size > 5 * 1024 * 1024) {
-                    this.showError("Imagem demasiado grande (max 5MB): " + file.name);
+                    this.showError(t("file_too_large") + file.name);
                     return;
                 }
                 const dataUrl = await this.readFileAs(file, "dataurl");
@@ -403,7 +403,7 @@ class InesBotChat {
                 const sample = text.substring(0, 2000);
                 const binaryCount = (sample.match(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g) || []).length;
                 if (binaryCount > sample.length * 0.05) {
-                    this.showError("\"" + file.name + "\" parece ser um ficheiro binário e não pode ser lido como texto. Tenta converter para PDF ou txt.");
+                    this.showError("\"" + file.name + "\"" + t("binary_file"));
                     return;
                 }
                 this.uploadedFiles.push({ name: file.name, content: text, type: "file" });
@@ -411,7 +411,7 @@ class InesBotChat {
             }
         } catch (err) {
             console.error("Erro a processar ficheiro:", err);
-            this.showError("Não consegui ler " + file.name + ": " + (err.message || err));
+            this.showError(t("cant_read_file") + file.name + ": " + (err.message || err));
         }
     }
 
@@ -691,7 +691,7 @@ class InesBotChat {
             sessions.forEach(session => {
                 const div = document.createElement("div");
                 div.className = "session-item" + (session.id === this.currentSession ? " active" : "");
-                div.innerHTML = "<span>" + this.escapeHtml(session.name) + "</span><div class=\"session-actions\"><button title=\"Renomear\" onclick=\"chat.renameSession(" + session.id + ", this); event.stopPropagation();\">✏️</button><button title=\"Apagar\" onclick=\"chat.deleteSession(" + session.id + "); event.stopPropagation();\">🗑️</button></div>";
+                div.innerHTML = "<span>" + this.escapeHtml(session.name) + "</span><div class=\"session-actions\"><button title=\"" + t("rename_title") + "\" onclick=\"chat.renameSession(" + session.id + ", this); event.stopPropagation();\">✏️</button><button title=\"" + t("delete_title") + "\" onclick=\"chat.deleteSession(" + session.id + "); event.stopPropagation();\">🗑️</button></div>";
                 div.addEventListener("click", () => this.loadSession(session.id));
                 container.appendChild(div);
             });
@@ -703,7 +703,7 @@ class InesBotChat {
     async renameSession(sessionId, btn) {
         const item = btn.closest(".session-item");
         const currentName = item ? item.querySelector("span").textContent : "";
-        const newName = prompt("Novo nome da conversa:", currentName);
+        const newName = prompt(t("rename_prompt"), currentName);
         if (newName === null) return;
         const trimmed = newName.trim();
         if (!trimmed || trimmed === currentName) return;
@@ -737,7 +737,7 @@ class InesBotChat {
     }
 
     async deleteSession(sessionId) {
-        if (!confirm("Apagar esta conversa?")) return;
+        if (!confirm(t("delete_confirm"))) return;
         try {
             await fetch("/api/sessions/" + sessionId, { method: "DELETE" });
             if (this.currentSession === sessionId) {
@@ -822,13 +822,15 @@ class InesBotChat {
                 message: message,
                 model_id: modelId,
                 session_id: this.currentSession,
+                lang: localStorage.getItem("lang") || "pt",
                 use_web_search: useWebSearch,
                 use_fallback: useFallback,
                 summarize_context: summarizeContext,
+                lang: getLang(),
                 images: pendingImages
             }));
         } else {
-            this.showError("WebSocket nao conectado. A reconectar...");
+            this.showError(t("ws_not_connected"));
             this.isProcessing = false;
             this.updateSendButton(false);
         }
@@ -838,7 +840,7 @@ class InesBotChat {
         const container = document.getElementById("messages");
         const div = document.createElement("div");
         div.className = "message assistant streaming";
-        div.innerHTML = "<div class=\"message-header\">🤖 InesBot <span class=\"streaming-indicator\">▌</span></div><div class=\"message-content\"></div>";
+        div.innerHTML = "<div class=\"message-header\">🤖 InesAI <span class=\"streaming-indicator\">▌</span></div><div class=\"message-content\"></div>";
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
         return div;
@@ -861,7 +863,7 @@ class InesBotChat {
             if (fallbackUsed) {
                 displayName = modelName + " (fallback)";
             }
-            headerDiv.innerHTML = "🤖 InesBot <span class=\"streaming-indicator\">▌</span> <span class=\"model-tag\">" + this.escapeHtml(displayName) + "</span>";
+            headerDiv.innerHTML = "🤖 InesAI <span class=\"streaming-indicator\">▌</span> <span class=\"model-tag\">" + this.escapeHtml(displayName) + "</span>";
         }
 
         contentDiv.innerHTML = this.renderMarkdown(full);
@@ -883,7 +885,7 @@ class InesBotChat {
                 if (fallbackUsed) {
                     displayName = displayName + " (fallback)";
                 }
-                headerDiv.innerHTML = "🤖 InesBot <span class=\"model-tag\">" + this.escapeHtml(displayName) + "</span>";
+                headerDiv.innerHTML = "🤖 InesAI <span class=\"model-tag\">" + this.escapeHtml(displayName) + "</span>";
             }
             const contentDiv = this.currentAssistantDiv.querySelector(".message-content");
             contentDiv.innerHTML = this.renderMarkdown(content);
@@ -919,7 +921,7 @@ class InesBotChat {
         if (role === "user") {
             header = "<div class=\"message-header\">👤 Tu</div>";
         } else if (role === "assistant") {
-            header = "<div class=\"message-header\">🤖 InesBot" + (model ? " <span class=\"model-tag\">" + model + "</span>" : "") + "</div>";
+            header = "<div class=\"message-header\">🤖 InesAI" + (model ? " <span class=\"model-tag\">" + model + "</span>" : "") + "</div>";
         }
         div.innerHTML = header + "<div class=\"message-content\">" + this.renderMarkdown(content) + "</div>";
         container.appendChild(div);
@@ -978,4 +980,4 @@ class InesBotChat {
     }
 }
 
-// InesBotChat é instanciado pelo auth bootstrap em index.html após validação da sessão
+// InesAIChat é instanciado pelo auth bootstrap em index.html após validação da sessão

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 InesBot
+# 🤖 InesAI
 
 **Lightweight multi-provider AI chat — runs on a Raspberry Pi 4**
 
@@ -35,9 +35,9 @@ Runs comfortably on a **Raspberry Pi 4 (2GB RAM)** and serves multiple users sim
 
 ## 🪶 Why lightweight matters
 
-Most self-hosted AI chat solutions (Open WebUI, LibreChat, etc.) require Docker, Node.js build steps, and 2–4 GB of RAM just to start. InesBot is different:
+Most self-hosted AI chat solutions (Open WebUI, LibreChat, etc.) require Docker, Node.js build steps, and 2–4 GB of RAM just to start. InesAI is different:
 
-| | InesBot | Open WebUI | LibreChat |
+| | InesAI | Open WebUI | LibreChat |
 |---|---|---|---|
 | RAM at idle | ~120 MB | ~800 MB+ | ~600 MB+ |
 | Requires Docker | ✗ | ✓ | ✓ |
@@ -73,8 +73,8 @@ Paid providers also supported: Moonshot/Kimi, Anthropic, OpenAI, DeepSeek, Mistr
 
 ```bash
 # 1. Clone or download
-git clone https://github.com/YOUR_USERNAME/inesbot.git
-cd inesbot
+git clone https://github.com/Perksls/InesAI.git
+cd InesAI
 
 # 2. Install
 bash install.sh
@@ -130,7 +130,7 @@ The `fallback_order` in `config.json` defines the priority. Users see a small no
 
 ## 🔧 MCP / Tool Calling
 
-InesBot includes a `mcp.py` layer that manages context and tools:
+InesAI includes a `mcp.py` layer that manages context and tools:
 
 - **Context management** — raw history (last 10 messages) or auto-summarise (switch in sidebar)
 - **Tools** — `search_web`, `calculate`, `get_current_datetime` — passed to models that support function calling (`mcp: true` in config)
@@ -139,7 +139,7 @@ InesBot includes a `mcp.py` layer that manages context and tools:
 ## 📁 Project structure
 
 ```
-inesbot/
+InesAI/
 ├── backend/
 │   ├── main.py       # FastAPI app, WebSocket, all routes
 │   ├── models.py     # Provider config, model selection, fallback

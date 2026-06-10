@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt" data-i18n-page="login_title">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0c0e13">
-    <title>InesBot - Login</title>
+    <title>InesAI - Login</title>
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --bg-primary: #0c0e13;
@@ -158,27 +159,27 @@
     <div class="login-wrap">
         <div class="login-header">
             <div class="logo">🤖</div>
-            <h1>InesBot</h1>
-            <p>Introduz as tuas credenciais para entrar</p>
+            <h1>InesAI</h1>
+            <p data-i18n="login_subtitle">Introduz as tuas credenciais para entrar</p>
         </div>
 
         <div class="login-card">
             <div class="error-msg" id="error-msg"></div>
 
             <div class="form-group">
-                <label for="username">Utilizador</label>
-                <input type="text" id="username" placeholder="O teu utilizador" autocomplete="username" autofocus>
+                <label for="username" data-i18n="username">Utilizador</label>
+                <input type="text" id="username" data-i18n-placeholder="username_placeholder" placeholder="O teu utilizador" autocomplete="username" autofocus>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password" data-i18n="password">Password</label>
                 <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
             </div>
 
-            <button class="btn-login" id="btn-login">Entrar</button>
+            <button class="btn-login" id="btn-login" data-i18n="enter">Entrar</button>
         </div>
 
-        <p class="footer-note">InesBot © 2025</p>
+        <p class="footer-note">InesAI © 2026</p>
     </div>
 
     <script>
@@ -199,8 +200,8 @@
         function setLoading(loading) {
             btnLogin.disabled = loading;
             btnLogin.innerHTML = loading
-                ? '<span class="spinner"></span>A entrar...'
-                : 'Entrar';
+                ? '<span class="spinner"></span>' + t('entering')
+                : t('enter');
         }
 
         async function doLogin() {
@@ -208,7 +209,7 @@
             const password = passwordEl.value;
 
             if (!username || !password) {
-                showError('Preenche o utilizador e a password.');
+                showError(t('fill_fields'));
                 return;
             }
 
@@ -228,12 +229,12 @@
                 if (resp.ok && data.ok) {
                     window.location.href = '/';
                 } else {
-                    showError(data.error || 'Erro ao fazer login.');
+                    showError(data.error || t('login_error'));
                     passwordEl.value = '';
                     passwordEl.focus();
                 }
             } catch (e) {
-                showError('Erro de ligação. Tenta novamente.');
+                showError(t('connection_error'));
             } finally {
                 setLoading(false);
             }

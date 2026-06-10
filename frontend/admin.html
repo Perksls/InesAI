@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0c0e13">
-    <title>InesBot — Admin</title>
+    <title>InesAI — Admin</title>
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --bg:        #0c0e13;
@@ -158,29 +159,32 @@
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-logo">
-            <h1>InesBot</h1>
+            <h1>InesAI</h1>
             <span class="badge">ADMIN</span>
         </div>
         <button class="nav-item active" onclick="showSection('dashboard')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            Dashboard
+            <span data-i18n="admin_dashboard">Dashboard</span>
         </button>
         <button class="nav-item" onclick="showSection('users')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Utilizadores
+            <span data-i18n="admin_users">Utilizadores</span>
         </button>
         <button class="nav-item" onclick="showSection('providers')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
-            Providers
+            <span data-i18n="admin_providers">Providers</span>
         </button>
         <button class="nav-item" onclick="showSection('logs')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-            Logs
+            <span data-i18n="admin_logs">Logs</span>
         </button>
         <div class="nav-sep"></div>
+        <button class="nav-item" onclick="toggleLang()" style="font-weight:700;">
+            🌐 <span id="lang-label">EN</span>
+        </button>
         <button class="nav-item nav-back" onclick="window.location.href='/'">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-            Voltar ao Chat
+            <span data-i18n="admin_back_chat">Voltar ao Chat</span>
         </button>
     </nav>
 
@@ -190,22 +194,22 @@
         <!-- Dashboard -->
         <div id="section-dashboard" class="section active">
             <div class="page-header">
-                <h2>Dashboard</h2>
-                <p>Estado geral do sistema</p>
+                <h2 data-i18n="admin_dashboard">Dashboard</h2>
+                <p data-i18n="admin_system_status">Estado geral do sistema</p>
             </div>
             <div class="stats-grid" id="stats-grid">
-                <div class="stat-card"><div class="label">Utilizadores</div><div class="value accent" id="stat-users">—</div></div>
-                <div class="stat-card"><div class="label">Conversas</div><div class="value" id="stat-sessions">—</div></div>
-                <div class="stat-card"><div class="label">Mensagens</div><div class="value" id="stat-messages">—</div></div>
-                <div class="stat-card"><div class="label">Modelos ativos</div><div class="value success" id="stat-models">—</div></div>
-                <div class="stat-card"><div class="label">Providers ativos</div><div class="value warning" id="stat-providers">—</div></div>
-                <div class="stat-card"><div class="label">WS ligados</div><div class="value" id="stat-ws">—</div></div>
+                <div class="stat-card"><div class="label" data-i18n="admin_stat_users">Utilizadores</div><div class="value accent" id="stat-users">—</div></div>
+                <div class="stat-card"><div class="label" data-i18n="admin_stat_sessions">Conversas</div><div class="value" id="stat-sessions">—</div></div>
+                <div class="stat-card"><div class="label" data-i18n="admin_stat_messages">Mensagens</div><div class="value" id="stat-messages">—</div></div>
+                <div class="stat-card"><div class="label" data-i18n="admin_stat_models">Modelos ativos</div><div class="value success" id="stat-models">—</div></div>
+                <div class="stat-card"><div class="label" data-i18n="admin_stat_providers">Providers ativos</div><div class="value warning" id="stat-providers">—</div></div>
+                <div class="stat-card"><div class="label" data-i18n="admin_stat_ws">WS ligados</div><div class="value" id="stat-ws">—</div></div>
             </div>
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
-                        Recarregar Configuração
+                        <span data-i18n="admin_reload_title">Recarregar Configuração</span>
                     </div>
                     <button class="btn btn-secondary" onclick="reloadConfig()" id="btn-reload">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
@@ -220,19 +224,19 @@
         <!-- Utilizadores -->
         <div id="section-users" class="section">
             <div class="page-header">
-                <h2>Utilizadores</h2>
-                <p>Gestão de contas e permissões</p>
+                <h2 data-i18n="admin_users">Utilizadores</h2>
+                <p data-i18n="admin_users_mgmt">Gestão de contas e permissões</p>
             </div>
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                        Lista de utilizadores
+                        <span data-i18n="admin_users_list">Lista de utilizadores</span>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="showCreateModal()">+ Novo utilizador</button>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateModal()" data-i18n="admin_new_user">+ Novo utilizador</button>
                 </div>
                 <table id="users-table">
-                    <thead><tr><th>ID</th><th>Username</th><th>Papel</th><th>Criado em</th><th>Ações</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Username</th><th data-i18n="admin_col_role">Papel</th><th data-i18n="admin_col_created">Criado em</th><th data-i18n="admin_col_actions">Ações</th></tr></thead>
                     <tbody id="users-tbody"></tbody>
                 </table>
             </div>
@@ -241,8 +245,8 @@
         <!-- Providers -->
         <div id="section-providers" class="section">
             <div class="page-header">
-                <h2>Providers</h2>
-                <p>Providers de IA activos e modelos disponíveis</p>
+                <h2 data-i18n="admin_providers">Providers</h2>
+                <p data-i18n="admin_providers_desc">Providers de IA activos e modelos disponíveis</p>
             </div>
             <div class="providers-grid" id="providers-grid"></div>
         </div>
@@ -250,8 +254,8 @@
         <!-- Logs -->
         <div id="section-logs" class="section">
             <div class="page-header">
-                <h2>Logs</h2>
-                <p>Últimas 100 linhas do backend.log</p>
+                <h2 data-i18n="admin_logs">Logs</h2>
+                <p data-i18n="admin_logs_desc">Últimas 100 linhas do backend.log</p>
             </div>
             <div class="card">
                 <div class="card-header">
@@ -260,8 +264,8 @@
                         backend.log
                     </div>
                     <div style="display:flex;gap:8px;">
-                        <button class="btn btn-secondary btn-sm" onclick="loadLogs()">↻ Atualizar</button>
-                        <button class="btn btn-secondary btn-sm" onclick="clearLogView()">Limpar vista</button>
+                        <button class="btn btn-secondary btn-sm" onclick="loadLogs()" data-i18n="admin_refresh">↻ Atualizar</button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearLogView()" data-i18n="admin_clear_view">Limpar vista</button>
                     </div>
                 </div>
                 <pre id="log-output">A carregar...</pre>
@@ -274,24 +278,24 @@
 <!-- Modal criar utilizador -->
 <div id="modal-create" style="display:none;" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-create')">
     <div class="modal">
-        <h3>Novo Utilizador</h3>
+        <h3 data-i18n="admin_modal_new_user">Novo Utilizador</h3>
         <div class="form-row">
             <div class="form-group">
-                <label>Username</label>
+                <label data-i18n="username">Username</label>
                 <input type="text" id="new-username" placeholder="nome_utilizador" autocomplete="off">
             </div>
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="new-password" placeholder="mínimo 6 caracteres">
+                <label data-i18n="password">Password</label>
+                <input type="password" id="new-password" data-i18n-placeholder="admin_min_chars" placeholder="mínimo 6 caracteres">
             </div>
         </div>
         <label class="form-check">
             <input type="checkbox" id="new-is-admin">
-            Tornar administrador
+            <span data-i18n="admin_make_admin">Tornar administrador</span>
         </label>
         <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="closeModal('modal-create')">Cancelar</button>
-            <button class="btn btn-primary" onclick="createUser()" id="btn-create-user">Criar</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-create')" data-i18n="cancel">Cancelar</button>
+            <button class="btn btn-primary" onclick="createUser()" id="btn-create-user" data-i18n="admin_create">Criar</button>
         </div>
     </div>
 </div>
@@ -299,15 +303,15 @@
 <!-- Modal mudar password -->
 <div id="modal-passwd" style="display:none;" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-passwd')">
     <div class="modal">
-        <h3>Mudar Password</h3>
+        <h3 data-i18n="admin_modal_passwd">Mudar Password</h3>
         <input type="hidden" id="passwd-user-id">
         <div class="form-group" style="margin-bottom:0">
-            <label>Nova password para <strong id="passwd-username"></strong></label>
-            <input type="password" id="new-passwd-value" placeholder="mínimo 6 caracteres" style="margin-top:6px;">
+            <label><span data-i18n="admin_new_passwd_for">Nova password para</span> <strong id="passwd-username"></strong></label>
+            <input type="password" id="new-passwd-value" data-i18n-placeholder="admin_min_chars" placeholder="mínimo 6 caracteres" style="margin-top:6px;">
         </div>
         <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="closeModal('modal-passwd')">Cancelar</button>
-            <button class="btn btn-primary" onclick="changePassword()" id="btn-change-passwd">Guardar</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-passwd')" data-i18n="cancel">Cancelar</button>
+            <button class="btn btn-primary" onclick="changePassword()" id="btn-change-passwd" data-i18n="admin_save">Guardar</button>
         </div>
     </div>
 </div>
@@ -545,6 +549,11 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 // Init
 loadStatus();
+// Lang label shows the OTHER language (the one you switch to)
+(function() {
+    const el = document.getElementById('lang-label');
+    if (el) el.textContent = (localStorage.getItem('lang') || 'pt') === 'pt' ? 'EN' : 'PT';
+})();
 </script>
 </body>
 </html>

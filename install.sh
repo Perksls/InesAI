@@ -1,5 +1,5 @@
 #!/bin/bash
-# InesBot — One-shot installer
+# InesAI — One-shot installer
 # Run from the project root: bash install.sh
 
 set -e
@@ -10,11 +10,11 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${YELLOW}"
-echo "  ___            ____        _   "
-echo " |_ _|_ __   ___| __ )  ___ | |_ "
-echo "  | || '_ \ / _ \  _ \ / _ \| __|"
-echo "  | || | | |  __/ |_) | (_) | |_ "
-echo " |___|_| |_|\___|____/ \___/ \__|"
+echo "  ___                 _    ___ "
+echo " |_ _|_ __   ___  ___| |  / _ \\"
+echo "  | || '_ \\ / _ \\/ __| | | (_) |"
+echo "  | || | | |  __/\\__ \\ |  \\__, |"
+echo " |___|_| |_|\\___||___/_|    /_/ "
 echo -e "${NC}"
 echo "Lightweight multi-provider AI chat"
 echo "------------------------------------"

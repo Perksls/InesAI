@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt" data-i18n-page="app_title">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0c0e13">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>InesBot - Chat AI</title>
+    <title>InesAI - Chat AI</title>
+    <script src="/static/i18n.js"></script>
     <link rel="stylesheet" href="/static/style.css">
     <!-- JSZip para descompactar ZIPs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -16,38 +17,39 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title-row">
-                    <h1>InesBot</h1>
+                    <h1>InesAI</h1>
                     <div style="display:flex;gap:4px;align-items:center;">
-                        <button class="btn-icon-sidebar" id="theme-toggle" title="Mudar tema">🌙</button>
-                        <button class="btn-icon-sidebar hidden" id="btn-reload-config" title="Recarregar configuração"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg></button>
-                        <button class="btn-icon-sidebar" id="btn-logout" title="Sair"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="11"/></svg></button>
+                        <button class="btn-icon-sidebar" id="lang-toggle" onclick="toggleLang()" style="font-size:0.7rem;font-weight:700;">EN</button>
+                        <button class="btn-icon-sidebar" id="theme-toggle" data-i18n-title="theme_toggle" title="Mudar tema">🌙</button>
+                        <button class="btn-icon-sidebar hidden" id="btn-reload-config" data-i18n-title="reload_config" title="Painel de administração"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg></button>
+                        <button class="btn-icon-sidebar" id="btn-logout" data-i18n-title="logout" title="Sair"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="11"/></svg></button>
                     </div>
                 </div>
                 <span class="user-name" id="user-display">👤 ...</span>
-                <button id="new-chat-btn" class="btn-primary">＋ Novo chat</button>
+                <button id="new-chat-btn" class="btn-primary" data-i18n="new_chat">＋ Novo chat</button>
             </div>
 
             <div class="sidebar-section">
-                <h3>Configuração</h3>
+                <h3 data-i18n="configuration">Configuração</h3>
                 <select id="model-select">
-                    <option value="">🤖 AUTO (Selecionar Automaticamente)</option>
+                    <option value="" data-i18n="auto_select">🤖 AUTO (Selecionar Automaticamente)</option>
                 </select>
                 <label class="checkbox">
                     <input type="checkbox" id="web-search">
-                    <span>🌐 Pesquisa Web</span>
+                    <span data-i18n="web_search">🌐 Pesquisa Web</span>
                 </label>
                 <label class="checkbox">
                     <input type="checkbox" id="fallback" checked>
-                    <span>🔄 Fallback</span>
+                    <span data-i18n="fallback">🔄 Fallback</span>
                 </label>
                 <label class="checkbox">
                     <input type="checkbox" id="summarize-context">
-                    <span>📝 Resumir contexto</span>
+                    <span data-i18n="summarize_context">📝 Resumir contexto</span>
                 </label>
             </div>
 
             <div class="sidebar-section">
-                <h3>Histórico</h3>
+                <h3 data-i18n="history">Histórico</h3>
                 <div id="sessions-list"></div>
             </div>
         </aside>
@@ -57,7 +59,7 @@
         <main class="chat-container">
             <div class="chat-header">
                 <button class="menu-btn" id="menu-btn">☰</button>
-                <span class="chat-title">InesBot</span>
+                <span class="chat-title">InesAI</span>
             </div>
 
             <div id="messages" class="messages"></div>
@@ -73,24 +75,24 @@
 
                 <!-- Input container -->
                 <div class="input-container">
-                    <button class="btn-attach" id="btn-attach" title="Anexar">＋</button>
+                    <button class="btn-attach" id="btn-attach" data-i18n-title="attach" title="Anexar">＋</button>
 
                     <div class="textarea-wrapper">
-                        <textarea id="message-input" placeholder="Mensagem InesBot..." rows="1" autocomplete="off"></textarea>
+                        <textarea id="message-input" data-i18n-placeholder="message_placeholder" placeholder="Mensagem InesAI..." rows="1" autocomplete="off"></textarea>
                     </div>
 
-                    <button class="btn-send" id="send-btn" title="Enviar">➤</button>
+                    <button class="btn-send" id="send-btn" data-i18n-title="send" title="Enviar">➤</button>
                 </div>
 
                 <!-- Menu de anexos (dropdown) -->
                 <div class="attach-menu hidden" id="attach-menu">
                     <button class="attach-option" id="attach-file">
                         <span class="attach-icon">📎</span>
-                        <span class="attach-label">Anexar ficheiro(s)</span>
+                        <span class="attach-label" data-i18n="attach_files">Anexar ficheiro(s)</span>
                     </button>
                     <button class="attach-option" id="attach-code">
                         <span class="attach-icon">📝</span>
-                        <span class="attach-label">Inserir codigo</span>
+                        <span class="attach-label" data-i18n="insert_code">Inserir código</span>
                     </button>
                 </div>
 
@@ -101,11 +103,11 @@
                 <div class="code-modal hidden" id="code-modal">
                     <div class="code-modal-content">
                         <div class="code-modal-header">
-                            <h3>📝 Inserir Codigo</h3>
+                            <h3 data-i18n="insert_code_title">📝 Inserir Código</h3>
                             <button class="btn-close" id="code-modal-close">✖</button>
                         </div>
                         <select id="code-language" class="code-language-select">
-                            <option value="">Auto-detectar</option>
+                            <option value="" data-i18n="auto_detect">Auto-detectar</option>
                             <option value="python">Python</option>
                             <option value="javascript">JavaScript</option>
                             <option value="html">HTML</option>
@@ -121,19 +123,19 @@
                             <option value="yaml">YAML</option>
                             <option value="xml">XML</option>
                             <option value="markdown">Markdown</option>
-                            <option value="text">Texto</option>
+                            <option value="text" data-i18n="text_plain">Texto</option>
                         </select>
-                        <textarea id="code-input" placeholder="Cole o codigo aqui..." rows="10"></textarea>
+                        <textarea id="code-input" data-i18n-placeholder="paste_code_here" placeholder="Cole o código aqui..." rows="10"></textarea>
                         <div class="code-modal-actions">
-                            <button class="btn-secondary" id="code-modal-cancel">Cancelar</button>
-                            <button class="btn-primary" id="code-modal-insert">Inserir</button>
+                            <button class="btn-secondary" id="code-modal-cancel" data-i18n="cancel">Cancelar</button>
+                            <button class="btn-primary" id="code-modal-insert" data-i18n="insert">Inserir</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-hints">
-                    <span class="hint">Shift+Enter ↵ nova linha</span>
-                    <span class="hint">Enter ↵ enviar</span>
+                    <span class="hint" data-i18n="hint_newline">Shift+Enter ↵ nova linha</span>
+                    <span class="hint" data-i18n="hint_send">Enter ↵ enviar</span>
                 </div>
             </div>
         </main>
@@ -167,7 +169,7 @@
             });
 
             // Só agora arrancar a app
-            window.chat = new InesBotChat();
+            window.chat = new InesAIChat();
 
         } catch (e) { window.location.href = '/login'; }
     })();

@@ -1,5 +1,5 @@
 [Unit]
-Description=InesBot WebSocket Backend
+Description=InesAI WebSocket Backend
 After=network.target
 
 [Service]
