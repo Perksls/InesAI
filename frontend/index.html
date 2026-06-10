@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0c0e13">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>InesBot - Chat AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- JSZip para descompactar ZIPs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                    <h1>InesBot</h1>
+                    <div style="display:flex;gap:4px;align-items:center;">
+                        <button class="btn-icon-sidebar" id="theme-toggle" title="Mudar tema">🌙</button>
+                        <button class="btn-icon-sidebar hidden" id="btn-reload-config" title="Recarregar configuração"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg></button>
+                        <button class="btn-icon-sidebar" id="btn-logout" title="Sair"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="11"/></svg></button>
+                    </div>
+                </div>
+                <span class="user-name" id="user-display">👤 ...</span>
+                <button id="new-chat-btn" class="btn-primary">＋ Novo chat</button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Configuração</h3>
+                <select id="model-select">
+                    <option value="">🤖 AUTO (Selecionar Automaticamente)</option>
+                </select>
+                <label class="checkbox">
+                    <input type="checkbox" id="web-search">
+                    <span>🌐 Pesquisa Web</span>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" id="fallback" checked>
+                    <span>🔄 Fallback</span>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" id="summarize-context">
+                    <span>📝 Resumir contexto</span>
+                </label>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Histórico</h3>
+                <div id="sessions-list"></div>
+            </div>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <main class="chat-container">
+            <div class="chat-header">
+                <button class="menu-btn" id="menu-btn">☰</button>
+                <span class="chat-title">InesBot</span>
+            </div>
+
+            <div id="messages" class="messages"></div>
+
+            <!-- Input Area Redesenhado -->
+            <div class="input-area">
+                <div id="typing-indicator" class="typing hidden">
+                    <span></span><span></span><span></span>
+                </div>
+
+                <!-- Preview de anexos -->
+                <div id="attachments-preview" class="attachments-preview hidden"></div>
+
+                <!-- Input container -->
+                <div class="input-container">
+                    <button class="btn-attach" id="btn-attach" title="Anexar">＋</button>
+
+                    <div class="textarea-wrapper">
+                        <textarea id="message-input" placeholder="Mensagem InesBot..." rows="1" autocomplete="off"></textarea>
+                    </div>
+
+                    <button class="btn-send" id="send-btn" title="Enviar">➤</button>
+                </div>
+
+                <!-- Menu de anexos (dropdown) -->
+                <div class="attach-menu hidden" id="attach-menu">
+                    <button class="attach-option" id="attach-file">
+                        <span class="attach-icon">📎</span>
+                        <span class="attach-label">Anexar ficheiro(s)</span>
+                    </button>
+                    <button class="attach-option" id="attach-code">
+                        <span class="attach-icon">📝</span>
+                        <span class="attach-label">Inserir codigo</span>
+                    </button>
+                </div>
+
+                <!-- Input de ficheiro escondido - multiple -->
+                <input type="file" id="file-upload" multiple accept=".txt,.pdf,.docx,.xlsx,.csv,.zip,.py,.js,.ts,.html,.css,.md,.json,.xml,.yaml,.yml,.png,.jpg,.jpeg,.gif,.webp,.bmp,.tiff,.tif,.avif,.svg" style="display:none">
+
+                <!-- Modal para inserir codigo -->
+                <div class="code-modal hidden" id="code-modal">
+                    <div class="code-modal-content">
+                        <div class="code-modal-header">
+                            <h3>📝 Inserir Codigo</h3>
+                            <button class="btn-close" id="code-modal-close">✖</button>
+                        </div>
+                        <select id="code-language" class="code-language-select">
+                            <option value="">Auto-detectar</option>
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="sql">SQL</option>
+                            <option value="java">Java</option>
+                            <option value="cpp">C++</option>
+                            <option value="go">Go</option>
+                            <option value="php">PHP</option>
+                            <option value="csharp">C#</option>
+                            <option value="bash">Bash</option>
+                            <option value="json">JSON</option>
+                            <option value="yaml">YAML</option>
+                            <option value="xml">XML</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="text">Texto</option>
+                        </select>
+                        <textarea id="code-input" placeholder="Cole o codigo aqui..." rows="10"></textarea>
+                        <div class="code-modal-actions">
+                            <button class="btn-secondary" id="code-modal-cancel">Cancelar</button>
+                            <button class="btn-primary" id="code-modal-insert">Inserir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-hints">
+                    <span class="hint">Shift+Enter ↵ nova linha</span>
+                    <span class="hint">Enter ↵ enviar</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    // Auth bootstrap — valida sessão PRIMEIRO, só depois arranca o app
+    (async () => {
+        try {
+            const resp = await fetch('/api/me', { credentials: 'same-origin' });
+            if (!resp.ok) { window.location.href = '/login'; return; }
+            const user = await resp.json();
+
+            // Preencher nome
+            const el = document.getElementById('user-display');
+            if (el) el.textContent = user.username;
+
+            // Mostrar botão admin só para admins
+            if (user.is_admin) {
+                const adminBtn = document.getElementById('btn-reload-config');
+                if (adminBtn) adminBtn.classList.remove('hidden');
+            }
+
+            // Ligar eventos de logout e admin
+            document.getElementById('btn-logout')?.addEventListener('click', async () => {
+                await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
+                window.location.href = '/login';
+            });
+            document.getElementById('btn-reload-config')?.addEventListener('click', () => {
+                window.location.href = '/admin';
+            });
+
+            // Só agora arrancar a app
+            window.chat = new InesBotChat();
+
+        } catch (e) { window.location.href = '/login'; }
+    })();
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

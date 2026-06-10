@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0c0e13">
+    <title>InesBot — Admin</title>
+    <style>
+        :root {
+            --bg:        #0c0e13;
+            --surface:   #13161d;
+            --surface-2: #1a1e27;
+            --surface-3: #222734;
+            --accent:    #f0506e;
+            --accent-2:  #ff8a5c;
+            --accent-soft: rgba(240,80,110,0.1);
+            --accent-line: rgba(240,80,110,0.3);
+            --success:   #4ecdc4;
+            --warning:   #f7b731;
+            --error:     #ff5c5c;
+            --text:      #e8eaf0;
+            --muted:     #8a91a3;
+            --muted-2:   #5d6373;
+            --line:      rgba(255,255,255,0.07);
+            --line-s:    rgba(255,255,255,0.13);
+            --radius:    14px;
+            --radius-sm: 9px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; -webkit-font-smoothing:antialiased; }
+
+        /* Layout */
+        .app { display:flex; min-height:100vh; }
+        .sidebar { width:220px; background:var(--surface); border-right:1px solid var(--line); padding:20px 14px; display:flex; flex-direction:column; gap:4px; flex-shrink:0; position:sticky; top:0; height:100vh; }
+        .main { flex:1; padding:28px; overflow-y:auto; max-width:1100px; }
+
+        /* Sidebar */
+        .sidebar-logo { display:flex; align-items:center; gap:8px; margin-bottom:24px; }
+        .sidebar-logo h1 { font-size:1.1rem; font-weight:700; background:linear-gradient(120deg,var(--accent),var(--accent-2)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .sidebar-logo .badge { font-size:0.62rem; background:var(--accent-soft); border:1px solid var(--accent-line); color:var(--accent); padding:2px 7px; border-radius:999px; font-weight:600; letter-spacing:.05em; -webkit-text-fill-color:var(--accent); }
+        .nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:var(--radius-sm); color:var(--muted); cursor:pointer; font-size:.85rem; transition:background .15s,color .15s; border:none; background:none; width:100%; text-align:left; }
+        .nav-item:hover { background:var(--surface-2); color:var(--text); }
+        .nav-item.active { background:var(--accent-soft); color:var(--text); }
+        .nav-item svg { flex-shrink:0; opacity:.7; }
+        .nav-item.active svg { opacity:1; }
+        .nav-sep { height:1px; background:var(--line); margin:10px 0; }
+        .nav-back { color:var(--muted); font-size:.8rem; }
+
+        /* Header */
+        .page-header { margin-bottom:24px; }
+        .page-header h2 { font-size:1.4rem; font-weight:700; letter-spacing:-.02em; }
+        .page-header p { color:var(--muted); font-size:.85rem; margin-top:4px; }
+
+        /* Sections */
+        .section { display:none; }
+        .section.active { display:block; }
+
+        /* Cards de stats */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-bottom:24px; }
+        .stat-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px; }
+        .stat-card .label { font-size:.72rem; color:var(--muted-2); text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
+        .stat-card .value { font-size:1.8rem; font-weight:700; letter-spacing:-.02em; }
+        .stat-card .value.accent { color:var(--accent); }
+        .stat-card .value.success { color:var(--success); }
+        .stat-card .value.warning { color:var(--warning); }
+
+        /* Cards */
+        .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:16px; }
+        .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+        .card-title { font-size:.9rem; font-weight:600; display:flex; align-items:center; gap:8px; }
+        .card-title svg { color:var(--accent); }
+
+        /* Buttons */
+        .btn { padding:8px 16px; border-radius:var(--radius-sm); border:none; cursor:pointer; font-size:.83rem; font-weight:600; transition:filter .15s,background .15s,transform .1s; display:inline-flex; align-items:center; gap:6px; }
+        .btn:active { transform:scale(.97); }
+        .btn-primary { background:var(--accent); color:#fff; }
+        .btn-primary:hover { filter:brightness(1.1); }
+        .btn-secondary { background:var(--surface-2); color:var(--text); border:1px solid var(--line-s); }
+        .btn-secondary:hover { background:var(--surface-3); }
+        .btn-danger { background:rgba(255,92,92,.15); color:var(--error); border:1px solid rgba(255,92,92,.25); }
+        .btn-danger:hover { background:rgba(255,92,92,.25); }
+        .btn-success { background:rgba(78,205,196,.15); color:var(--success); border:1px solid rgba(78,205,196,.25); }
+        .btn-success:hover { background:rgba(78,205,196,.25); }
+        .btn-sm { padding:5px 11px; font-size:.76rem; }
+        .btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+
+        /* Table */
+        table { width:100%; border-collapse:collapse; font-size:.83rem; }
+        th { text-align:left; padding:8px 12px; font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted-2); border-bottom:1px solid var(--line); font-weight:600; }
+        td { padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:var(--surface-2); }
+
+        /* Badges */
+        .badge-pill { font-size:.68rem; padding:2px 9px; border-radius:999px; font-weight:600; letter-spacing:.03em; display:inline-block; }
+        .badge-admin { background:rgba(240,80,110,.12); color:var(--accent); border:1px solid var(--accent-line); }
+        .badge-user { background:var(--surface-3); color:var(--muted); border:1px solid var(--line); }
+        .badge-on { background:rgba(78,205,196,.12); color:var(--success); border:1px solid rgba(78,205,196,.3); }
+        .badge-off { background:var(--surface-3); color:var(--muted-2); border:1px solid var(--line); }
+
+        /* Forms */
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+        .form-group { display:flex; flex-direction:column; gap:6px; }
+        .form-group label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+        .form-group input, .form-group select { background:var(--surface-2); border:1px solid var(--line-s); border-radius:var(--radius-sm); padding:9px 12px; color:var(--text); font-size:.88rem; outline:none; transition:border-color .15s; }
+        .form-group input:focus, .form-group select:focus { border-color:var(--accent-line); }
+        .form-group input::placeholder { color:var(--muted-2); }
+        .form-check { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:.85rem; color:var(--muted); }
+        .form-check input { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
+
+        /* Providers grid */
+        .providers-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+        .provider-card { background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:14px; }
+        .provider-name { font-weight:600; font-size:.88rem; margin-bottom:4px; text-transform:capitalize; }
+        .provider-url { font-size:.72rem; color:var(--muted-2); margin-bottom:10px; word-break:break-all; }
+        .provider-meta { display:flex; align-items:center; justify-content:space-between; }
+
+        /* Logs */
+        #log-output { background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-sm); padding:14px; font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace; font-size:.73rem; line-height:1.6; color:var(--muted); max-height:480px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+        .log-error { color:var(--error); }
+        .log-warn { color:var(--warning); }
+        .log-info { color:var(--success); }
+
+        /* Toast */
+        #toast { position:fixed; bottom:24px; right:24px; padding:12px 18px; border-radius:var(--radius-sm); font-size:.83rem; font-weight:600; z-index:999; opacity:0; transform:translateY(8px); transition:opacity .2s,transform .2s; pointer-events:none; max-width:320px; }
+        #toast.show { opacity:1; transform:translateY(0); }
+        #toast.success { background:rgba(78,205,196,.15); border:1px solid rgba(78,205,196,.4); color:var(--success); }
+        #toast.error { background:rgba(255,92,92,.15); border:1px solid rgba(255,92,92,.4); color:var(--error); }
+        #toast.info { background:rgba(240,80,110,.1); border:1px solid var(--accent-line); color:var(--accent); }
+
+        /* Modal */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; }
+        .modal { background:var(--surface); border:1px solid var(--line-s); border-radius:var(--radius); padding:24px; width:100%; max-width:420px; box-shadow:0 24px 80px rgba(0,0,0,.6); }
+        .modal h3 { font-size:1rem; font-weight:700; margin-bottom:18px; }
+        .modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+
+        /* Spinner */
+        .spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width:7px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--surface-3); border-radius:99px; }
+
+        @media (max-width:640px) {
+            .app { flex-direction:column; }
+            .sidebar { width:100%; height:auto; position:static; flex-direction:row; flex-wrap:wrap; padding:12px; gap:4px; }
+            .sidebar-logo { margin-bottom:0; margin-right:auto; }
+            .main { padding:16px; }
+            .form-row { grid-template-columns:1fr; }
+            .stats-grid { grid-template-columns:repeat(2,1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <h1>InesBot</h1>
+            <span class="badge">ADMIN</span>
+        </div>
+        <button class="nav-item active" onclick="showSection('dashboard')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Dashboard
+        </button>
+        <button class="nav-item" onclick="showSection('users')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Utilizadores
+        </button>
+        <button class="nav-item" onclick="showSection('providers')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+            Providers
+        </button>
+        <button class="nav-item" onclick="showSection('logs')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            Logs
+        </button>
+        <div class="nav-sep"></div>
+        <button class="nav-item nav-back" onclick="window.location.href='/'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Voltar ao Chat
+        </button>
+    </nav>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- Dashboard -->
+        <div id="section-dashboard" class="section active">
+            <div class="page-header">
+                <h2>Dashboard</h2>
+                <p>Estado geral do sistema</p>
+            </div>
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card"><div class="label">Utilizadores</div><div class="value accent" id="stat-users">—</div></div>
+                <div class="stat-card"><div class="label">Conversas</div><div class="value" id="stat-sessions">—</div></div>
+                <div class="stat-card"><div class="label">Mensagens</div><div class="value" id="stat-messages">—</div></div>
+                <div class="stat-card"><div class="label">Modelos ativos</div><div class="value success" id="stat-models">—</div></div>
+                <div class="stat-card"><div class="label">Providers ativos</div><div class="value warning" id="stat-providers">—</div></div>
+                <div class="stat-card"><div class="label">WS ligados</div><div class="value" id="stat-ws">—</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
+                        Recarregar Configuração
+                    </div>
+                    <button class="btn btn-secondary" onclick="reloadConfig()" id="btn-reload">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
+                        Reload config.json
+                    </button>
+                </div>
+                <p style="color:var(--muted);font-size:.83rem;">Aplica alterações ao <code style="background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.8rem;">config.json</code> sem reiniciar o servidor. Activa novos providers, modelos e API keys em tempo real.</p>
+                <div id="reload-result" style="margin-top:12px;display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Utilizadores -->
+        <div id="section-users" class="section">
+            <div class="page-header">
+                <h2>Utilizadores</h2>
+                <p>Gestão de contas e permissões</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        Lista de utilizadores
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateModal()">+ Novo utilizador</button>
+                </div>
+                <table id="users-table">
+                    <thead><tr><th>ID</th><th>Username</th><th>Papel</th><th>Criado em</th><th>Ações</th></tr></thead>
+                    <tbody id="users-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Providers -->
+        <div id="section-providers" class="section">
+            <div class="page-header">
+                <h2>Providers</h2>
+                <p>Providers de IA activos e modelos disponíveis</p>
+            </div>
+            <div class="providers-grid" id="providers-grid"></div>
+        </div>
+
+        <!-- Logs -->
+        <div id="section-logs" class="section">
+            <div class="page-header">
+                <h2>Logs</h2>
+                <p>Últimas 100 linhas do backend.log</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        backend.log
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="loadLogs()">↻ Atualizar</button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearLogView()">Limpar vista</button>
+                    </div>
+                </div>
+                <pre id="log-output">A carregar...</pre>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Modal criar utilizador -->
+<div id="modal-create" style="display:none;" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-create')">
+    <div class="modal">
+        <h3>Novo Utilizador</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="new-username" placeholder="nome_utilizador" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="new-password" placeholder="mínimo 6 caracteres">
+            </div>
+        </div>
+        <label class="form-check">
+            <input type="checkbox" id="new-is-admin">
+            Tornar administrador
+        </label>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal('modal-create')">Cancelar</button>
+            <button class="btn btn-primary" onclick="createUser()" id="btn-create-user">Criar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal mudar password -->
+<div id="modal-passwd" style="display:none;" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-passwd')">
+    <div class="modal">
+        <h3>Mudar Password</h3>
+        <input type="hidden" id="passwd-user-id">
+        <div class="form-group" style="margin-bottom:0">
+            <label>Nova password para <strong id="passwd-username"></strong></label>
+            <input type="password" id="new-passwd-value" placeholder="mínimo 6 caracteres" style="margin-top:6px;">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal('modal-passwd')">Cancelar</button>
+            <button class="btn btn-primary" onclick="changePassword()" id="btn-change-passwd">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ── Navigation ──────────────────────────────────────────────────
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (name === 'dashboard') loadStatus();
+    if (name === 'users')     loadUsers();
+    if (name === 'providers') loadProviders();
+    if (name === 'logs')      loadLogs();
+}
+
+// ── Toast ────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type='info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.className = '', 3200);
+}
+
+// ── API helpers ───────────────────────────────────────────────────
+async function api(method, path, body) {
+    const opts = { method, credentials:'same-origin', headers:{} };
+    if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+    const r = await fetch(path, opts);
+    if (r.status === 403) { toast('Acesso negado', 'error'); throw new Error('403'); }
+    return r;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────
+async function loadStatus() {
+    try {
+        const r = await api('GET', '/api/admin/status');
+        const d = await r.json();
+        document.getElementById('stat-users').textContent    = d.total_users;
+        document.getElementById('stat-sessions').textContent = d.total_sessions;
+        document.getElementById('stat-messages').textContent = d.total_messages;
+        document.getElementById('stat-models').textContent   = d.total_models;
+        document.getElementById('stat-providers').textContent= Object.keys(d.providers).length;
+        document.getElementById('stat-ws').textContent       = d.ws_connections;
+    } catch(e) {}
+}
+
+async function reloadConfig() {
+    const btn = document.getElementById('btn-reload');
+    const res = document.getElementById('reload-result');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> A recarregar...';
+    try {
+        const r = await api('POST', '/api/admin/reload-config');
+        const d = await r.json();
+        res.style.display = 'block';
+        res.innerHTML = '<span style="color:var(--success)">✓ Config recarregado — providers activos: <strong>' + d.providers.join(', ') + '</strong> · ' + d.models + ' modelos disponíveis</span>';
+        toast('Config recarregado!', 'success');
+        loadStatus();
+    } catch(e) {
+        toast('Erro ao recarregar', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg> Reload config.json';
+    }
+}
+
+// ── Users ─────────────────────────────────────────────────────────
+let currentUserId = null;
+
+async function loadUsers() {
+    try {
+        const r = await api('GET', '/api/admin/users');
+        const { users } = await r.json();
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = '';
+        users.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:var(--muted-2)">#${u.id}</td>
+                <td><strong>${esc(u.username)}</strong></td>
+                <td><span class="badge-pill ${u.is_admin ? 'badge-admin' : 'badge-user'}">${u.is_admin ? 'Admin' : 'User'}</span></td>
+                <td style="color:var(--muted)">${u.created_at ? u.created_at.slice(0,10) : '—'}</td>
+                <td>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <button class="btn btn-secondary btn-sm" onclick="showPasswdModal(${u.id},'${esc(u.username)}')">Password</button>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleAdmin(${u.id})">${u.is_admin ? 'Remover admin' : 'Tornar admin'}</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id},'${esc(u.username)}')">Apagar</button>
+                    </div>
+                </td>`;
+            tbody.appendChild(tr);
+        });
+    } catch(e) { toast('Erro ao carregar utilizadores', 'error'); }
+}
+
+function showCreateModal() {
+    document.getElementById('new-username').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('new-is-admin').checked = false;
+    document.getElementById('modal-create').style.display = 'flex';
+    setTimeout(() => document.getElementById('new-username').focus(), 50);
+}
+
+async function createUser() {
+    const username = document.getElementById('new-username').value.trim();
+    const password = document.getElementById('new-password').value;
+    const is_admin = document.getElementById('new-is-admin').checked;
+    if (!username || !password) { toast('Preenche todos os campos', 'error'); return; }
+    const btn = document.getElementById('btn-create-user');
+    btn.disabled = true;
+    try {
+        const r = await api('POST', '/api/admin/users', { username, password, is_admin });
+        if (r.ok) {
+            toast('Utilizador ' + username + ' criado!', 'success');
+            closeModal('modal-create');
+            loadUsers();
+        } else {
+            const d = await r.json();
+            toast(d.detail || 'Erro ao criar', 'error');
+        }
+    } finally { btn.disabled = false; }
+}
+
+function showPasswdModal(id, username) {
+    document.getElementById('passwd-user-id').value = id;
+    document.getElementById('passwd-username').textContent = username;
+    document.getElementById('new-passwd-value').value = '';
+    document.getElementById('modal-passwd').style.display = 'flex';
+    setTimeout(() => document.getElementById('new-passwd-value').focus(), 50);
+}
+
+async function changePassword() {
+    const id = document.getElementById('passwd-user-id').value;
+    const password = document.getElementById('new-passwd-value').value;
+    if (password.length < 6) { toast('Mínimo 6 caracteres', 'error'); return; }
+    const btn = document.getElementById('btn-change-passwd');
+    btn.disabled = true;
+    try {
+        const r = await api('PUT', '/api/admin/users/' + id + '/password', { password });
+        if (r.ok) { toast('Password alterada!', 'success'); closeModal('modal-passwd'); }
+        else { const d = await r.json(); toast(d.detail || 'Erro', 'error'); }
+    } finally { btn.disabled = false; }
+}
+
+async function toggleAdmin(id) {
+    try {
+        const r = await api('PUT', '/api/admin/users/' + id + '/toggle-admin');
+        if (r.ok) { toast('Papel actualizado', 'success'); loadUsers(); }
+        else { const d = await r.json(); toast(d.detail || 'Erro', 'error'); }
+    } catch(e) {}
+}
+
+async function deleteUser(id, username) {
+    if (!confirm('Apagar "' + username + '" e todas as suas conversas?\n\nEsta ação é irreversível.')) return;
+    try {
+        const r = await api('DELETE', '/api/admin/users/' + id);
+        if (r.ok) { toast('Utilizador apagado', 'success'); loadUsers(); }
+        else { const d = await r.json(); toast(d.detail || 'Erro', 'error'); }
+    } catch(e) {}
+}
+
+// ── Providers ─────────────────────────────────────────────────────
+async function loadProviders() {
+    try {
+        const r = await api('GET', '/api/admin/status');
+        const d = await r.json();
+        const grid = document.getElementById('providers-grid');
+        grid.innerHTML = '';
+        const allR = await api('GET', '/api/providers');
+        const allD = await allR.json();
+        Object.entries(allD.providers).forEach(([pid, p]) => {
+            const modelCount = (d.providers[pid] || {}).models || 0;
+            const card = document.createElement('div');
+            card.className = 'provider-card';
+            card.innerHTML = `
+                <div class="provider-name">${pid}</div>
+                <div class="provider-url">${p.base_url}</div>
+                <div class="provider-meta">
+                    <span class="badge-pill badge-on">● Ativo</span>
+                    <span style="font-size:.75rem;color:var(--muted)">${modelCount} modelo${modelCount!==1?'s':''}</span>
+                </div>`;
+            grid.appendChild(card);
+        });
+        if (!Object.keys(allD.providers).length) {
+            grid.innerHTML = '<p style="color:var(--muted)">Nenhum provider activo.</p>';
+        }
+    } catch(e) { toast('Erro ao carregar providers', 'error'); }
+}
+
+// ── Logs ──────────────────────────────────────────────────────────
+async function loadLogs() {
+    const el = document.getElementById('log-output');
+    el.textContent = 'A carregar...';
+    try {
+        const r = await api('GET', '/api/admin/logs?lines=100');
+        const d = await r.json();
+        el.innerHTML = '';
+        d.lines.forEach(line => {
+            const span = document.createElement('span');
+            if (/ERROR|error|Erro/i.test(line)) span.className = 'log-error';
+            else if (/WARNING|WARN|warning/i.test(line)) span.className = 'log-warn';
+            else if (/INFO|info|✓|OK/i.test(line)) span.className = 'log-info';
+            span.textContent = line + '\n';
+            el.appendChild(span);
+        });
+        el.scrollTop = el.scrollHeight;
+    } catch(e) { el.textContent = 'Erro ao carregar logs.'; }
+}
+
+function clearLogView() {
+    document.getElementById('log-output').innerHTML = '';
+}
+
+// ── Modals ────────────────────────────────────────────────────────
+function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.style.display='none');
+    if (e.key === 'Enter') {
+        if (document.getElementById('modal-create').style.display==='flex') createUser();
+        if (document.getElementById('modal-passwd').style.display==='flex') changePassword();
+    }
+});
+
+// ── Utils ─────────────────────────────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Init
+loadStatus();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Secrets
+config.json
+.env
+
+# Database e logs
+data/
+logs/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Backups e temporários
+*.backup
+config.json.backup
+*.zip
+frontend/app.js.afterusers
+backend/backend.log
+README-AUTH.md

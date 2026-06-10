@@ -1,0 +1,16 @@
+[Unit]
+Description=InesBot WebSocket Backend
+After=network.target
+
+[Service]
+Type=simple
+User=perks
+WorkingDirectory=/home/perks/openrouterws
+Environment=PATH=/home/perks/openrouterws/venv/bin
+EnvironmentFile=-/home/perks/openrouterws/.env
+ExecStart=/home/perks/openrouterws/venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8001
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
