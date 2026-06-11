@@ -67,7 +67,10 @@ All of these have **free tiers** with no credit card required:
 | [GitHub Models](https://github.com/marketplace/models) | Free — rate limited | GPT-4o, Llama 3.3, Mistral Large | ⚡⚡ |
 | [Cloudflare Workers AI](https://dash.cloudflare.com) | Free tier | Llama 4 Scout, Qwen3 32B | ⚡⚡ |
 
-Paid providers also supported: Moonshot/Kimi, Anthropic, OpenAI, DeepSeek, Mistral, xAI.
+
+**check out [awesome-free-models](https://github.com/12britz/awesome-free-models) For a comprehensive and up-to-date list of free AI providers and models.**
+
+Paid providers also supported: Moonshot/Kimi, Anthropic, OpenAI, DeepSeek, Mistral, xAI...
 
 ## 🚀 Quick Start
 
@@ -134,7 +137,7 @@ InesAI includes a `mcp.py` layer that manages context and tools:
 
 - **Context management** — raw history (last 10 messages) or auto-summarise (switch in sidebar)
 - **Tools** — `search_web`, `calculate`, `get_current_datetime` — passed to models that support function calling (`mcp: true` in config)
-- **External MCP servers** — connect any HTTP MCP server via `mcp_servers` in config (Moonshot/Kimi recommended for best tool calling support)
+- **External MCP servers** — connect any HTTP MCP server via `mcp_servers` in config 
 
 ## 📁 Project structure
 
