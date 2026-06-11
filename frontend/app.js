@@ -12,7 +12,10 @@ class InesAIChat {
         this.pendingCode = null;
         this.currentAssistantDiv = null;
         this.currentModelName = "";
-        this.fallbackInfoDiv = null; // NOVO: guardar div de fallback
+        this.fallbackInfoDiv = null;
+        this.streamBuffer = "";      // throttle: acumula chunks
+        this.streamFull = "";        // throttle: texto completo actual
+        this.streamTimer = null;     // throttle: timer de render
         console.log("InesAIChat criado");
         this.init();
     }
@@ -215,6 +218,11 @@ class InesAIChat {
 
     stopGeneration() {
         console.log("Parando geração...");
+        if (this.streamTimer) {
+            clearInterval(this.streamTimer);
+            this.streamTimer = null;
+        }
+        this.streamFull = null;
         this.isProcessing = false;
         document.getElementById("send-btn").disabled = false;
         this.updateSendButton(false);
@@ -870,12 +878,28 @@ class InesAIChat {
         }
 
         contentDiv.innerHTML = this.renderMarkdown(full);
-        const container = document.getElementById("messages");
-        container.scrollTop = container.scrollHeight;
+        // Throttle: acumular e renderizar a 50ms para não bloquear UI
+        this.streamFull = full;
+        if (!this.streamTimer) {
+            this.streamTimer = setInterval(() => {
+                if (this.currentAssistantDiv && this.streamFull !== null) {
+                    const cd = this.currentAssistantDiv.querySelector(".message-content");
+                    if (cd) cd.innerHTML = this.renderMarkdown(this.streamFull);
+                    const container = document.getElementById("messages");
+                    if (container) container.scrollTop = container.scrollHeight;
+                }
+            }, 50);
+        }
     }
 
     finishStreaming(content, modelName, fallbackUsed) {
-        // NOVO: Remover mensagem de fallback quando termina
+        // Parar o timer de throttle e fazer flush final
+        if (this.streamTimer) {
+            clearInterval(this.streamTimer);
+            this.streamTimer = null;
+        }
+        this.streamFull = null;
+
         if (fallbackUsed) {
             this.removeFallbackInfo();
         }
