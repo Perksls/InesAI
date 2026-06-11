@@ -283,7 +283,8 @@ class InesAIChat {
         preview.innerHTML = "<button class=\"close-btn\" onclick=\"chat.removeCodePreview()\">✖</button><span class=\"lang-tag\">" + lang + "</span><pre>" + this.escapeHtml(code.substring(0, 500)) + (code.length > 500 ? "..." : "") + "</pre>";
         const inputWrapper = document.querySelector(".input-wrapper");
         inputArea.insertBefore(preview, inputWrapper);
-        this.pendingCode = code;
+        // Sempre guardar como objecto {lang, code} para consistência com sendMessage
+        this.pendingCode = { lang: lang, code: code };
         document.getElementById("message-input").focus();
     }
 
@@ -762,6 +763,8 @@ class InesAIChat {
                 message = "```" + lang + "\n" + code + "\n```";
             }
             this.pendingCode = null;
+            const codePreview = document.getElementById("code-paste-preview");
+            if (codePreview) codePreview.remove();
         }
         let pendingImages = [];
         if (this.uploadedFiles && this.uploadedFiles.length > 0) {
@@ -968,6 +971,10 @@ class InesAIChat {
         this.clearAttachments();
         this.pendingCode = null;
         this.uploadedFiles = [];
+
+        // Limpar preview de código colado se existir
+        const codePreview = document.getElementById("code-paste-preview");
+        if (codePreview) codePreview.remove();
 
         // NOVO: Limpar fallback info
         this.removeFallbackInfo();
