@@ -1,10 +1,10 @@
-"""Models configuration and auto-selection for InesBot"""
+"""Models configuration and auto-selection for InesAI"""
 import json
 import logging
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-logger = logging.getLogger("inesbot.models")
+logger = logging.getLogger("inesai.models")
 
 
 class ModelConfig:
@@ -72,13 +72,13 @@ class ModelConfig:
 
     def is_provider_active(self, provider: str) -> bool:
         prov = self.config.get("providers", {}).get(provider, {})
-        return prov.get("ativo", False) and self.has_api_key(provider)
+        return prov.get("active", False) and self.has_api_key(provider)
 
     def is_model_active(self, model_id: str) -> bool:
         model = self.get_model(model_id)
         if not model:
             return False
-        return model.get("ativo", True) and self.is_provider_active(model["provider"])
+        return model.get("active", True) and self.is_provider_active(model["provider"])
 
     def get_provider_api_type(self, provider: str) -> str:
         return self.config.get("providers", {}).get(provider, {}).get("api_type", "openai")

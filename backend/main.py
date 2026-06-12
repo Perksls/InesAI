@@ -821,7 +821,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             messages.append({
                 "role": "system",
-                "content": "You are InesAI, a friendly and helpful AI assistant."
+                "content": config.config.get("settings", {}).get("system_prompt", "You are InesAI, a friendly and helpful AI assistant.")
             })
 
             # Definir aqui para usar tanto no contexto como no tool loop abaixo

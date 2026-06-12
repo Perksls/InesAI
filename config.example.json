@@ -5,7 +5,6 @@
       "keys": [
         "csk_YOUR_CEREBRAS_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [
           {
@@ -17,7 +16,7 @@
               "general"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "gpt-oss-120b",
@@ -28,19 +27,19 @@
               "general"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ],
         "paid": []
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     },
     "groq": {
       "base_url": "https://api.groq.com/openai/v1",
       "keys": [
         "gsk_YOUR_GROQ_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [
           {
@@ -52,7 +51,7 @@
               "general"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "llama3-groq-70b-8192-tool-use-preview",
@@ -63,7 +62,7 @@
               "agents"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "llama-3.1-8b-instant",
@@ -74,7 +73,7 @@
               "general"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "qwen-qwq-32b",
@@ -85,19 +84,19 @@
               "coding"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ],
         "paid": []
       },
-      "mcp": true
+      "mcp": true,
+      "active": false
     },
     "google": {
       "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
       "keys": [
         "YOUR_GOOGLE_AI_STUDIO_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [
           {
@@ -110,7 +109,7 @@
               "multimodal"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "gemini-2.5-pro",
@@ -121,20 +120,20 @@
               "long_context"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ],
         "paid": []
       },
       "mcp": true,
-      "mcp_servers": []
+      "mcp_servers": [],
+      "active": false
     },
     "github": {
       "base_url": "https://models.inference.ai.azure.com",
       "keys": [
         "ghp_YOUR_GITHUB_TOKEN_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [
           {
@@ -146,7 +145,7 @@
               "coding"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "gpt-4o-mini",
@@ -157,7 +156,7 @@
               "general"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "Meta-Llama-3.3-70B-Instruct",
@@ -168,7 +167,7 @@
               "multilingual"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "Mistral-large",
@@ -179,7 +178,7 @@
               "agents"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "Phi-4",
@@ -190,20 +189,20 @@
               "fast"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ],
         "paid": []
       },
       "mcp": true,
-      "mcp_servers": []
+      "mcp_servers": [],
+      "active": false
     },
     "cloudflare": {
       "base_url": "https://api.cloudflare.com/client/v4/accounts/YOUR_ACCOUNT_ID/ai/v1",
       "keys": [
         "YOUR_CLOUDFLARE_TOKEN_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [
           {
@@ -215,7 +214,7 @@
               "fast"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "@cf/qwen/qwen3-32b",
@@ -226,7 +225,7 @@
               "multilingual"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "@cf/google/gemma-4-27b-it",
@@ -237,19 +236,19 @@
               "multimodal"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ],
         "paid": []
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     },
     "moonshot": {
       "base_url": "https://api.moonshot.cn/v1",
       "keys": [
         "sk_YOUR_MOONSHOT_KEY_HERE"
       ],
-      "ativo": false,
       "mcp": true,
       "mcp_servers": [],
       "models": {
@@ -265,7 +264,7 @@
               "tools"
             ],
             "max_tokens": 8192,
-            "ativo": true
+            "active": true
           },
           {
             "id": "kimi-k2.5",
@@ -277,7 +276,7 @@
               "tools"
             ],
             "max_tokens": 8192,
-            "ativo": true
+            "active": true
           },
           {
             "id": "kimi-k2",
@@ -288,7 +287,7 @@
               "tools"
             ],
             "max_tokens": 8192,
-            "ativo": true
+            "active": true
           },
           {
             "id": "moonshot-v1-128k",
@@ -299,17 +298,17 @@
               "general"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ]
-      }
+      },
+      "active": false
     },
     "openrouter": {
       "base_url": "https://openrouter.ai/api/v1",
       "keys": [
         "sk-or-YOUR_OPENROUTER_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [
           {
@@ -321,19 +320,19 @@
               "math"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           }
         ],
         "paid": []
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     },
     "anthropic": {
       "base_url": "https://api.anthropic.com/v1",
       "keys": [
         "sk-ant-YOUR_ANTHROPIC_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [],
         "paid": [
@@ -346,7 +345,7 @@
               "coding"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           },
           {
             "id": "claude-opus-4-20250514",
@@ -357,19 +356,19 @@
               "long_context"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           }
         ]
       },
       "mcp": true,
-      "mcp_servers": []
+      "mcp_servers": [],
+      "active": false
     },
     "openai": {
       "base_url": "https://api.openai.com/v1",
       "keys": [
         "sk-YOUR_OPENAI_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [],
         "paid": [
@@ -382,7 +381,7 @@
               "fast"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           },
           {
             "id": "gpt-5",
@@ -393,19 +392,19 @@
               "agents"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           }
         ]
       },
       "mcp": true,
-      "mcp_servers": []
+      "mcp_servers": [],
+      "active": false
     },
     "deepseek": {
       "base_url": "https://api.deepseek.com/v1",
       "keys": [
         "sk-YOUR_DEEPSEEK_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [],
         "paid": [
@@ -418,7 +417,7 @@
               "math"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           },
           {
             "id": "deepseek-reasoner",
@@ -429,18 +428,18 @@
               "coding"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           }
         ]
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     },
     "mistral": {
       "base_url": "https://api.mistral.ai/v1",
       "keys": [
         "YOUR_MISTRAL_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [],
         "paid": [
@@ -453,18 +452,18 @@
               "agents"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           }
         ]
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     },
     "xai": {
       "base_url": "https://api.x.ai/v1",
       "keys": [
         "xai-YOUR_XAI_KEY_HERE"
       ],
-      "ativo": false,
       "models": {
         "free": [],
         "paid": [
@@ -477,18 +476,18 @@
               "humor"
             ],
             "max_tokens": 4096,
-            "ativo": false
+            "active": false
           }
         ]
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     },
     "poe": {
       "base_url": "https://api.poe.com/v1",
       "keys": [
         "YOUR_POE_KEY_HERE"
       ],
-      "ativo": false,
       "api_type": "openai",
       "models": {
         "free": [],
@@ -502,7 +501,7 @@
               "coding"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "Claude-Opus-4",
@@ -513,7 +512,7 @@
               "long_context"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           },
           {
             "id": "GPT-5",
@@ -524,11 +523,12 @@
               "agents"
             ],
             "max_tokens": 4096,
-            "ativo": true
+            "active": true
           }
         ]
       },
-      "mcp": false
+      "mcp": false,
+      "active": false
     }
   },
   "settings": {
@@ -537,7 +537,8 @@
     "max_tokens": 4096,
     "temperature": 0.7,
     "app_name": "InesAI",
-    "app_url": "http://localhost"
+    "app_url": "http://localhost",
+    "system_prompt": "You are InesAI, a friendly and helpful AI assistant."
   },
   "fallback_order": [
     "cerebras:llama3.1-8b",

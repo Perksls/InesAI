@@ -40,6 +40,7 @@ const I18N = {
         hint_newline: "Shift+Enter ↵ nova linha",
         hint_send: "Enter ↵ enviar",
         text_plain: "Texto",
+        scroll_down: "mais abaixo",
 
         // Mensagens dinâmicas (app.js)
         ws_not_connected: "WebSocket não conectado. A reconectar...",
@@ -130,6 +131,7 @@ const I18N = {
         hint_newline: "Shift+Enter ↵ new line",
         hint_send: "Enter ↵ send",
         text_plain: "Plain text",
+        scroll_down: "scroll down",
 
         // Dynamic messages (app.js)
         ws_not_connected: "WebSocket not connected. Reconnecting...",

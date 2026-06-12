@@ -13,9 +13,10 @@ class InesAIChat {
         this.currentAssistantDiv = null;
         this.currentModelName = "";
         this.fallbackInfoDiv = null;
-        this.streamBuffer = "";      // throttle: acumula chunks
-        this.streamFull = "";        // throttle: texto completo actual
-        this.streamTimer = null;     // throttle: timer de render
+        this.wordQueue = [];         // fila de palavras a mostrar
+        this.displayedText = "";     // texto já mostrado
+        this.streamTimer = null;     // timer de render palavra a palavra
+        this.streamComplete = false; // streaming do servidor terminou
         console.log("InesAIChat criado");
         this.init();
     }
@@ -128,6 +129,13 @@ class InesAIChat {
         if (sendBtn) {
             sendBtn.addEventListener("click", () => this.handleSendButton());
         }
+
+        // Scroll to bottom button
+        const messagesEl = document.getElementById("messages");
+        if (messagesEl) {
+            messagesEl.addEventListener("scroll", () => this._updateScrollBtn());
+        }
+
         const msgInput = document.getElementById("message-input");
         if (msgInput) {
             msgInput.addEventListener("keydown", (e) => {
@@ -222,7 +230,9 @@ class InesAIChat {
             clearInterval(this.streamTimer);
             this.streamTimer = null;
         }
-        this.streamFull = null;
+        this.wordQueue = [];
+        this.displayedText = "";
+        this.streamComplete = false;
         this.isProcessing = false;
         document.getElementById("send-btn").disabled = false;
         this.updateSendButton(false);
@@ -573,6 +583,19 @@ class InesAIChat {
         }
     }
 
+    _updateScrollBtn() {
+        const el = document.getElementById("messages");
+        const btn = document.getElementById("scroll-bottom-btn");
+        if (!el || !btn) return;
+        const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+        btn.classList.toggle("visible", !atBottom);
+    }
+
+    scrollToBottom() {
+        const el = document.getElementById("messages");
+        if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+
     toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("sidebar-overlay");
@@ -823,6 +846,15 @@ class InesAIChat {
         input.style.height = "auto";
         this.isProcessing = true;
 
+        // Reset word queue state for new message
+        this.wordQueue = [];
+        this.displayedText = "";
+        this.streamComplete = false;
+        if (this.streamTimer) {
+            clearInterval(this.streamTimer);
+            this.streamTimer = null;
+        }
+
         this.updateSendButton(true);
 
         document.getElementById("send-btn").disabled = false;
@@ -858,51 +890,70 @@ class InesAIChat {
     }
 
     appendChunk(chunk, full, modelName, fallbackUsed) {
-        // NOVO: Remover mensagem de fallback quando começa a receber resposta
-        if (fallbackUsed) {
-            this.removeFallbackInfo();
-        }
+        if (fallbackUsed) this.removeFallbackInfo();
 
         if (!this.currentAssistantDiv) {
             this.currentAssistantDiv = this.createAssistantDiv();
         }
-        const contentDiv = this.currentAssistantDiv.querySelector(".message-content");
-        const headerDiv = this.currentAssistantDiv.querySelector(".message-header");
 
+        const headerDiv = this.currentAssistantDiv.querySelector(".message-header");
         if (modelName && headerDiv) {
-            let displayName = modelName;
-            if (fallbackUsed) {
-                displayName = modelName + " (fallback)";
-            }
+            const displayName = modelName + (fallbackUsed ? " (fallback)" : "");
             headerDiv.innerHTML = "🤖 InesAI <span class=\"streaming-indicator\">▌</span> <span class=\"model-tag\">" + this.escapeHtml(displayName) + "</span>";
         }
 
-        contentDiv.innerHTML = this.renderMarkdown(full);
-        // Throttle: acumular e renderizar a 50ms para não bloquear UI
-        this.streamFull = full;
-        if (!this.streamTimer) {
-            this.streamTimer = setInterval(() => {
-                if (this.currentAssistantDiv && this.streamFull !== null) {
-                    const cd = this.currentAssistantDiv.querySelector(".message-content");
-                    if (cd) cd.innerHTML = this.renderMarkdown(this.streamFull);
-                    const container = document.getElementById("messages");
-                    if (container) container.scrollTop = container.scrollHeight;
+        // Partir chunk em tokens palavra+espaço para ritmo natural
+        const tokens = chunk.match(/\S+\s*/g) || [];
+        this.wordQueue.push(...tokens);
+
+        if (!this.streamTimer) this._startWordTimer();
+    }
+
+    _startWordTimer() {
+        const BASE_DELAY = 60;
+        const MIN_DELAY  = 20;
+        const MAX_QUEUE  = 30;
+
+        const tick = () => {
+            if (this.wordQueue.length === 0) {
+                if (this.streamComplete) {
+                    clearInterval(this.streamTimer);
+                    this.streamTimer = null;
                 }
-            }, 50);
-        }
+                return;
+            }
+
+            // Acelerar se a fila estiver a crescer muito
+            const wordsToShow = this.wordQueue.length > MAX_QUEUE ? 3 : 1;
+            for (let i = 0; i < wordsToShow && this.wordQueue.length > 0; i++) {
+                this.displayedText += this.wordQueue.shift();
+            }
+
+            if (this.currentAssistantDiv) {
+                const cd = this.currentAssistantDiv.querySelector(".message-content");
+                if (cd) cd.innerHTML = this.renderMarkdown(this.displayedText);
+                const container = document.getElementById("messages");
+                if (container) container.scrollTop = container.scrollHeight;
+                this._updateScrollBtn();
+            }
+        };
+
+        this.streamTimer = setInterval(tick, BASE_DELAY);
     }
 
     finishStreaming(content, modelName, fallbackUsed) {
-        // Parar o timer de throttle e fazer flush final
-        if (this.streamTimer) {
-            clearInterval(this.streamTimer);
-            this.streamTimer = null;
-        }
-        this.streamFull = null;
+        // Marcar que o servidor terminou — o timer drena a fila e para sozinho
+        this.streamComplete = true;
 
-        if (fallbackUsed) {
-            this.removeFallbackInfo();
+        // Se a fila já estava vazia, parar o timer imediatamente e render final
+        if (this.wordQueue.length === 0) {
+            if (this.streamTimer) {
+                clearInterval(this.streamTimer);
+                this.streamTimer = null;
+            }
         }
+
+        if (fallbackUsed) this.removeFallbackInfo();
 
         if (this.currentAssistantDiv) {
             this.currentAssistantDiv.classList.remove("streaming");
