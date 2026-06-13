@@ -27,6 +27,17 @@
             --radius:    14px;
             --radius-sm: 9px;
         }
+        body.light-mode {
+            --bg:        #f4f5f7;
+            --surface:   #ffffff;
+            --surface-2: #eef0f4;
+            --surface-3: #e4e7ed;
+            --text:      #1a1d27;
+            --muted:     #6b7280;
+            --muted-2:   #9ca3af;
+            --line:      rgba(0,0,0,0.08);
+            --line-s:    rgba(0,0,0,0.13);
+        }
         * { margin:0; padding:0; box-sizing:border-box; }
         html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; -webkit-font-smoothing:antialiased; }
 
@@ -182,6 +193,7 @@
         <button class="nav-item" onclick="toggleLang()" style="font-weight:700;">
             🌐 <span id="lang-label">EN</span>
         </button>
+        <button class="nav-item" id="theme-toggle-admin" onclick="toggleAdminTheme()">🌙</button>
         <button class="nav-item nav-back" onclick="window.location.href='/'">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
             <span data-i18n="admin_back_chat">Voltar ao Chat</span>
@@ -547,10 +559,21 @@ document.addEventListener('keydown', e => {
 // ── Utils ─────────────────────────────────────────────────────────
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+function toggleAdminTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    const btn = document.getElementById('theme-toggle-admin');
+    if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+}
+
 // Init
 loadStatus();
-// Lang label shows the OTHER language (the one you switch to)
+// Apply saved theme
 (function() {
+    const isLight = localStorage.getItem('theme') === 'light';
+    if (isLight) document.body.classList.add('light-mode');
+    const btn = document.getElementById('theme-toggle-admin');
+    if (btn) btn.textContent = isLight ? '☀️' : '🌙';
     const el = document.getElementById('lang-label');
     if (el) el.textContent = (localStorage.getItem('lang') || 'pt') === 'pt' ? 'EN' : 'PT';
 })();
