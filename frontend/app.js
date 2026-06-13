@@ -987,6 +987,7 @@ class InesAIChat {
         html = html.replace(/^## (.*$)/gim, "<h2>$1</h2>");
         html = html.replace(/^# (.*$)/gim, "<h1>$1</h1>");
         html = html.replace(/^\- (.*$)/gim, "<li>$1</li>");
+        html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
         html = html.replace(/\n/g, "<br>");
         return html;
     }
